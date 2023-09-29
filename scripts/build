@@ -38,12 +38,14 @@ if [[ $# -eq 0 ]]; then
     error "Missing IMAGESDIR arguments. Use the -h flag for more information."
 fi
 
-if [[ $# -gt 2 ]]; then
+if [[ $# -gt 3 ]]; then
     error "Extraneous arguments. Use the -h flag for more information."
 fi
 
 imagesdir="$1"
 version="$2"
+platform="$3"
+
 
 docker buildx create --use
 
@@ -55,7 +57,7 @@ docker-build() {
         --build-arg BUILDKIT_INLINE_CACHE=1 \
         --build-arg FROM="$from" \
         --cache-from "$(image-name "$2")" \
-        --platform linux/amd64,linux/arm64 \
+        --platform "$platform" \
         --tag "$target" .
 
     if [[ -n $publishflag ]]; then
@@ -67,28 +69,28 @@ pushd "$imagesdir"/toolchain
 docker-build toolchain toolchain
 popd
 
-pushd "$imagesdir"/base
-docker-build toolchain base
-popd
-
-pushd "$imagesdir"/golang
-docker-build base golang
-popd
-
-pushd "$imagesdir"/python
-docker-build base python
-popd
-
-pushd "$imagesdir"/qt
-docker-build base qt
-popd
-
-pushd "$imagesdir"/rust
-docker-build base rust
-popd
-
-pushd "$imagesdir"/dotnet6
-docker-build toolchain dotnet6
-popd
+# pushd "$imagesdir"/base
+# docker-build toolchain base
+# popd
+#
+# pushd "$imagesdir"/golang
+# docker-build base golang
+# popd
+#
+# pushd "$imagesdir"/python
+# docker-build base python
+# popd
+#
+# pushd "$imagesdir"/qt
+# docker-build base qt
+# popd
+#
+# pushd "$imagesdir"/rust
+# docker-build base rust
+# popd
+#
+# pushd "$imagesdir"/dotnet6
+# docker-build toolchain dotnet6
+# popd
 
 status "Done"
